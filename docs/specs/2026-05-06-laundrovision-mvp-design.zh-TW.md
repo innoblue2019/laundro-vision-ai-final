@@ -6,6 +6,39 @@
 
 ## 1. 系統架構與技術棧 (System Architecture)
 
+```mermaid
+graph TD
+    subgraph Frontend [前端介面]
+        UI[Streamlit App]
+        State[Session State 管理]
+    end
+
+    subgraph Backend [後端服務]
+        API[FastAPI Router]
+        Engine[決策算分引擎]
+        LLM_Service[AI 報告產生器]
+    end
+
+    subgraph Database [資料儲存]
+        DB[(PostgreSQL + PostGIS)]
+        Cache[本地 POI 快取 JSON]
+    end
+
+    subgraph External [外部服務]
+        GMap[Google Maps API]
+        OpenAI[OpenAI / Gemini API]
+    end
+
+    UI -->|提交問卷與地址| API
+    API -->|查詢座標與地標| GMap
+    API -->|讀寫歷史紀錄| DB
+    API -->|讀取行政區| Cache
+    API -->|呼叫算分| Engine
+    API -->|請求洞察| LLM_Service
+    LLM_Service -->|生成報告| OpenAI
+    API -->|回傳結果與雷達圖| UI
+```
+
 - **Frontend**: `Streamlit` (Python 3.11+)。負責漸進式介面與使用者狀態管理 (`st.session_state`)。
 - **Backend**: `FastAPI` (Python 3.11+)。提供 RESTful API，作為前端與資料庫、外部 API、LLM 間的橋樑。
 - **Database**: `PostgreSQL` + `PostGIS` 擴充。使用 `SQLAlchemy` 作為 ORM。
