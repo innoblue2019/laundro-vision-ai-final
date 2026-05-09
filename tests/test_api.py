@@ -1,3 +1,5 @@
+import os
+
 from fastapi.testclient import TestClient
 
 from laundro_vision_ai.api.main import app
@@ -35,3 +37,21 @@ def test_calculate_score_endpoint():
     )
     assert response.status_code == 200
     assert response.json()["total_score"] == 5.0
+
+
+def test_enrich_location_endpoint():
+    os.environ["MAP_PROVIDER"] = "MOCK"
+    from laundro_vision_ai.core.config import get_settings
+
+    get_settings.cache_clear()
+
+    response = client.post("/api/v1/locations/enrich", json={"address": "Taipei"})
+    assert response.status_code == 200
+    data = response.json()
+    assert "has_competitor_in_1000m" in data
+    assert "recommended_q1_score" in data
+    assert data["recommended_q1_score"] in [1, 2, 3, 4, 5]
+
+    if "MAP_PROVIDER" in os.environ:
+        del os.environ["MAP_PROVIDER"]
+    get_settings.cache_clear()
