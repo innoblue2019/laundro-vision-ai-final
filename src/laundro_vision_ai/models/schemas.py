@@ -38,3 +38,17 @@ class CategoryScores(BaseModel):
 class AssessmentResponse(BaseModel):
     total_score: float
     category_scores: CategoryScores
+
+
+class LocationEnrichRequest(BaseModel):
+    address: str
+    lat: float | None = None
+    lng: float | None = None
+
+
+class LocationEnrichResponse(BaseModel):
+    has_competitor_in_1000m: bool
+    competitors_data: list[str]
+    cvs_mcd_in_200m: list[str]
+    has_starbucks: bool
+    recommended_q1_score: int
