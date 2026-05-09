@@ -1,79 +1,79 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 default_language_version:
-    python: python3.11
+  python: python3.11
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-    -   id: check-ast
-    -   id: check-builtin-literals
-    -   id: check-case-conflict
-    -   id: debug-statements
-    -   id: mixed-line-ending
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: debug-statements
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
         args: [--unsafe]
-    -   id: check-json
-    -   id: check-toml
-    -   id: check-added-large-files
-    -   id: detect-private-key
-    -   id: name-tests-test
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+      - id: detect-private-key
+      - id: name-tests-test
         name: Tests should begin with test_*.py
         args: ["--pytest-test-first"]
-    -   id: check-merge-conflict
-    -   id: pretty-format-json
+      - id: check-merge-conflict
+      - id: pretty-format-json
         args: [--autofix, --no-ensure-ascii, --no-sort-keys]
-    -   id: no-commit-to-branch
+      - id: no-commit-to-branch
         args: [--branch, main]
--   repo: https://github.com/gitleaks/gitleaks
+  - repo: https://github.com/gitleaks/gitleaks
     rev: v8.30.1
     hooks:
-    -   id: gitleaks
--   repo: https://github.com/tox-dev/pyproject-fmt
+      - id: gitleaks
+  - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.21.1
     hooks:
-    -   id: pyproject-fmt
+      - id: pyproject-fmt
         name: apply a consistent format to pyproject.toml files
--   repo: https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.12
     hooks:
-    -   id: ruff
+      - id: ruff
         name: run `ruff` for Python linting
         args: [--fix, --exit-non-zero-on-fix]
-    -   id: ruff-format
+      - id: ruff-format
         name: run `ruff format for Python formatting`
--   repo: https://github.com/commitizen-tools/commitizen
+  - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.13.9
     # need to run pre-commit install --hook-type commit-msg --hook-type pre-push
     hooks:
-    -   id: commitizen
+      - id: commitizen
         name: check conventional commits format
         args: [--allow-abort, --commit-msg-file]
--   repo: https://github.com/RobertCraigie/pyright-python
+  - repo: https://github.com/RobertCraigie/pyright-python
     rev: v1.1.409
     hooks:
-    -   id: pyright
+      - id: pyright
         name: run `pyright`, a static type checker
         entry: uv run pyright
         args: [src/laundro_vision_ai, tests]
         language: system
--   repo: https://github.com/adamchainz/blacken-docs
+  - repo: https://github.com/adamchainz/blacken-docs
     rev: 1.20.0
     hooks:
-    -   id: blacken-docs
+      - id: blacken-docs
         name: run 'black' on Python code blocks in documentation files
         additional_dependencies:
-        -   black>=26.3.1
+          - black>=26.3.1
         files: '\.md$'
         exclude: "^docs/"
--   repo: https://github.com/pre-commit/mirrors-prettier
+  - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
-    -   id: prettier
+      - id: prettier
         name: run 'prettier', an opinionated code formatter
         additional_dependencies:
-        -   prettier@3.1.0
+          - prettier@3.1.0
         args: [--print-width=120, --prose-wrap=always]
-        exclude: ".git"
+        exclude: ".git|.json"
