@@ -87,7 +87,32 @@ def get_map_provider() -> MapProvider:
     provider = get_settings().MAP_PROVIDER
     if provider == "MOCK":
         return MockMapProvider()
+    elif provider == "GOOGLE":
+        return GoogleMapProvider()
     return OSMMapProvider()
+
+
+class GoogleMapProvider(MapProvider):
+    def geocode(self, address: str) -> tuple[float, float]:
+        settings = get_settings()
+        api_key = settings.GOOGLE_MAPS_API_KEY
+        if not api_key:
+            raise ValueError("GOOGLE_MAPS_API_KEY is not set")
+
+        url = "https://maps.googleapis.com/maps/api/geocode/json"
+        params = {"address": address, "key": api_key}
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("status") != "OK" or not data.get("results"):
+            raise ValueError(f"Could not geocode address: {address}")
+
+        location = data["results"][0]["geometry"]["location"]
+        return location["lat"], location["lng"]
+
+    def enrich_location(self, lat: float, lng: float) -> dict:
+        return {}
 
 
 def calculate_q1_score(has_starbucks: bool, cvs_mcd: list[str]) -> int:

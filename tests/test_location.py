@@ -3,10 +3,18 @@ from unittest.mock import patch
 
 import pytest
 import requests
+import responses
 import respx
 from httpx import Response
 
-from laundro_vision_ai.services.location import MockMapProvider, OSMMapProvider, calculate_q1_score, get_map_provider
+from laundro_vision_ai.core.config import Settings
+from laundro_vision_ai.services.location import (
+    GoogleMapProvider,
+    MockMapProvider,
+    OSMMapProvider,
+    calculate_q1_score,
+    get_map_provider,
+)
 
 
 def test_mock_provider_geocode():
@@ -103,6 +111,27 @@ def test_calculate_q1_score_with_starbucks_in_cvs_mcd():
     # and covers a potential edge case if data source changes.
     assert calculate_q1_score(False, ["Starbucks Coffee"]) == 3
     assert calculate_q1_score(False, ["McDonald's", "Starbucks Coffee"]) == 5
+
+
+@responses.activate
+def test_google_map_provider_geocode(monkeypatch):
+    # Mock settings
+    monkeypatch.setattr(
+        "laundro_vision_ai.services.location.get_settings", lambda: Settings(GOOGLE_MAPS_API_KEY="test_key")
+    )
+
+    provider = GoogleMapProvider()
+
+    responses.add(
+        responses.GET,
+        "https://maps.googleapis.com/maps/api/geocode/json",
+        json={"results": [{"geometry": {"location": {"lat": 25.033964, "lng": 121.564472}}}], "status": "OK"},
+        status=200,
+    )
+
+    lat, lng = provider.geocode("Taipei 101")
+    assert lat == 25.033964
+    assert lng == 121.564472
 
 
 @patch("requests.post")
