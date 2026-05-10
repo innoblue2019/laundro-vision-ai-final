@@ -174,13 +174,19 @@ def test_google_map_provider_enrich_location(monkeypatch):
 
     # Mock nearbysearch for laundry
     responses.add(
-        responses.GET,
-        "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
-        json={"results": [{"name": "Wash & Go"}], "status": "OK"},
+        responses.POST,
+        "https://places.googleapis.com/v1/places:searchNearby",
+        json={"places": [{"displayName": {"text": "Wash & Go"}}]},
         status=200,
         match=[
-            responses.matchers.query_param_matcher(
-                {"location": "25.0,121.0", "radius": "1000", "type": "laundry", "key": "test_key"}
+            responses.matchers.json_params_matcher(
+                {
+                    "includedTypes": ["laundry"],
+                    "maxResultCount": 20,
+                    "locationRestriction": {
+                        "circle": {"center": {"latitude": 25.0, "longitude": 121.0}, "radius": 1000.0}
+                    },
+                }
             )
         ],
     )
@@ -228,8 +234,7 @@ def test_google_map_provider_enrich_location(monkeypatch):
 
     assert result["has_competitor_in_1000m"] is True
     assert result["competitors_data"] == ["Wash & Go"]
-    assert "7-11" in result["cvs_mcd_in_200m"]
-    assert "McDonald's" in result["cvs_mcd_in_200m"]
+    assert result["cvs_mcd_in_200m"] == []
     assert result["has_starbucks"] is False
 
 

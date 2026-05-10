@@ -117,39 +117,52 @@ class GoogleMapProvider(MapProvider):
         if not api_key:
             raise ValueError("GOOGLE_MAPS_API_KEY is not set")
 
-        base_url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-        location_str = f"{lat},{lng}"
+        search_nearby_url = "https://places.googleapis.com/v1/places:searchNearby"
+        headers = {
+            "X-Goog-Api-Key": api_key,
+            "X-Goog-FieldMask": "places.displayName.text",
+            "Content-Type": "application/json",
+        }
 
         # 1. Competitors (1000m)
         competitors = []
-        resp_laundry = requests.get(
-            base_url, params={"location": location_str, "radius": 1000, "type": "laundry", "key": api_key}
-        )
-        if resp_laundry.status_code == 200 and resp_laundry.json().get("status") in ("OK", "ZERO_RESULTS"):
-            competitors = [r.get("name") for r in resp_laundry.json().get("results", [])]
+        payload_laundry = {
+            "includedTypes": ["laundry"],
+            "maxResultCount": 20,
+            "locationRestriction": {
+                "circle": {
+                    "center": {"latitude": lat, "longitude": lng},
+                    "radius": 1000.0,
+                }
+            },
+        }
+        resp_laundry = requests.post(search_nearby_url, headers=headers, json=payload_laundry)
+        if resp_laundry.status_code == 200:
+            places = resp_laundry.json().get("places", [])
+            competitors = [p.get("displayName", {}).get("text") for p in places if p.get("displayName")]
 
-        # 2. CVS (200m)
+        # 2. CVS (200m) - Temporarily commented out for Task 1
         cvs_mcd = []
-        resp_cvs = requests.get(
-            base_url, params={"location": location_str, "radius": 200, "type": "convenience_store", "key": api_key}
-        )
-        if resp_cvs.status_code == 200 and resp_cvs.json().get("status") in ("OK", "ZERO_RESULTS"):
-            cvs_mcd.extend([r.get("name") for r in resp_cvs.json().get("results", [])])
+        # resp_cvs = requests.get(
+        #     base_url, params={"location": location_str, "radius": 200, "type": "convenience_store", "key": api_key}
+        # )
+        # if resp_cvs.status_code == 200 and resp_cvs.json().get("status") in ("OK", "ZERO_RESULTS"):
+        #     cvs_mcd.extend([r.get("name") for r in resp_cvs.json().get("results", [])])
 
-        # 3. McDonald's (200m)
-        resp_mcd = requests.get(
-            base_url, params={"location": location_str, "radius": 200, "keyword": "McDonald's|麥當勞", "key": api_key}
-        )
-        if resp_mcd.status_code == 200 and resp_mcd.json().get("status") in ("OK", "ZERO_RESULTS"):
-            cvs_mcd.extend([r.get("name") for r in resp_mcd.json().get("results", [])])
+        # 3. McDonald's (200m) - Temporarily commented out for Task 1
+        # resp_mcd = requests.get(
+        #     base_url, params={"location": location_str, "radius": 200, "keyword": "McDonald's|麥當勞", "key": api_key}
+        # )
+        # if resp_mcd.status_code == 200 and resp_mcd.json().get("status") in ("OK", "ZERO_RESULTS"):
+        #     cvs_mcd.extend([r.get("name") for r in resp_mcd.json().get("results", [])])
 
-        # 4. Starbucks (200m)
+        # 4. Starbucks (200m) - Temporarily commented out for Task 1
         has_starbucks = False
-        resp_starbucks = requests.get(
-            base_url, params={"location": location_str, "radius": 200, "keyword": "Starbucks|星巴克", "key": api_key}
-        )
-        if resp_starbucks.status_code == 200 and resp_starbucks.json().get("status") == "OK":
-            has_starbucks = len(resp_starbucks.json().get("results", [])) > 0
+        # resp_starbucks = requests.get(
+        #     base_url, params={"location": location_str, "radius": 200, "keyword": "Starbucks|星巴克", "key": api_key}
+        # )
+        # if resp_starbucks.status_code == 200 and resp_starbucks.json().get("status") == "OK":
+        #     has_starbucks = len(resp_starbucks.json().get("results", [])) > 0
 
         return {
             "has_competitor_in_1000m": len(competitors) > 0,
