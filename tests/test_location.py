@@ -70,7 +70,7 @@ def test_get_map_provider_mock():
 
 
 def test_get_map_provider_osm():
-    # Default behavior is OSM, so no env var needed
+    os.environ["MAP_PROVIDER"] = "OSM"  # Explicitly set for this test
     provider = get_map_provider(Mock())
     assert isinstance(provider, OSMMapProvider)
 
@@ -225,7 +225,10 @@ def test_google_map_provider_enrich_location(monkeypatch):
                     "textQuery": "McDonald's OR 麥當勞",
                     "maxResultCount": 20,
                     "locationRestriction": {
-                        "circle": {"center": {"latitude": 25.0, "longitude": 121.0}, "radius": 200.0}
+                        "rectangle": {
+                            "low": {"latitude": 24.99820336943176, "longitude": 120.99801763750247},
+                            "high": {"latitude": 25.00179663056824, "longitude": 121.00198236249753},
+                        }
                     },
                 }
             )
@@ -244,7 +247,10 @@ def test_google_map_provider_enrich_location(monkeypatch):
                     "textQuery": "Starbucks OR 星巴克",
                     "maxResultCount": 20,
                     "locationRestriction": {
-                        "circle": {"center": {"latitude": 25.0, "longitude": 121.0}, "radius": 200.0}
+                        "rectangle": {
+                            "low": {"latitude": 24.99820336943176, "longitude": 120.99801763750247},
+                            "high": {"latitude": 25.00179663056824, "longitude": 121.00198236249753},
+                        }
                     },
                 }
             )

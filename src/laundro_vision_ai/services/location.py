@@ -166,15 +166,18 @@ class GoogleMapProvider(MapProvider):
             places = resp_cvs.json().get("places", [])
             cvs_mcd.extend([p.get("displayName", {}).get("text") for p in places if p.get("displayName")])
 
+        # Calculate bounding box for 200m
+        low_rect, high_rect = get_bounding_box(lat, lng, 200.0)
+
         # 3. McDonald's (200m)
         search_text_url = "https://places.googleapis.com/v1/places:searchText"
         payload_mcd = {
             "textQuery": "McDonald's OR 麥當勞",
             "maxResultCount": 20,
             "locationRestriction": {
-                "circle": {
-                    "center": {"latitude": lat, "longitude": lng},
-                    "radius": 200.0,
+                "rectangle": {
+                    "low": low_rect,
+                    "high": high_rect,
                 }
             },
         }
@@ -190,9 +193,9 @@ class GoogleMapProvider(MapProvider):
             "textQuery": "Starbucks OR 星巴克",
             "maxResultCount": 20,
             "locationRestriction": {
-                "circle": {
-                    "center": {"latitude": lat, "longitude": lng},
-                    "radius": 200.0,
+                "rectangle": {
+                    "low": low_rect,
+                    "high": high_rect,
                 }
             },
         }
