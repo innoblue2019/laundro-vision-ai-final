@@ -9,7 +9,7 @@ import streamlit as st
 # --- 頁面基本配置 ---
 st.set_page_config(page_title="LaundroVision AI", page_icon="🧺", layout="wide")
 
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
 
 
 # --- 1. 讀取本地台灣行政區 JSON 數據 (用於 INIT 下拉選單 - 完全保留) ---
